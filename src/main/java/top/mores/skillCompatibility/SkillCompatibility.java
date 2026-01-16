@@ -4,6 +4,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import top.mores.skillCompatibility.PlayerListener.PlayerListen;
 
 import java.io.File;
 
@@ -17,6 +18,8 @@ public final class SkillCompatibility extends JavaPlugin {
     public void onEnable() {
         instance = this;
         initFiles();
+
+        this.getServer().getPluginManager().registerEvents(new PlayerListen(),this);
         getLogger().info("SkillCompatibility enabled!");
     }
 
