@@ -12,4 +12,8 @@ public class ConfigIO {
     public String getStringPath(){
         return getConfig().getString("path");
     }
+
+    public String getFileName(){
+        return getConfig().getString("FileName");
+    }
 }
