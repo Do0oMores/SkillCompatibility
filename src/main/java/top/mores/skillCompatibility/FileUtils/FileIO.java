@@ -8,73 +8,80 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
-import static java.nio.file.Files.createFile;
-
 public class FileIO {
 
-    ConfigIO configIO=new ConfigIO();
-    private final String path=configIO.getStringPath();
-    private final String fileName= configIO.getFileName();
-    private JSONObject jsonInfo=new JSONObject();
+    ConfigIO configIO = new ConfigIO();
+    private final String path = configIO.getStringPath();
+    private final String fileName = configIO.getFileName();
+    private JSONObject jsonInfo = new JSONObject();
+
+    private String getFullPath() {
+        return path + File.separator + fileName;
+    }
 
     public JSONObject getJsonInfo() {
         return jsonInfo;
     }
 
     /**
-     * 完整的文件路径
-     * @return Full Path
+     * 载入类时加载JSON
      */
-    private String getFullPath(){
-        return path+ File.separator + fileName;
+    public FileIO() {
+        jsonInfo = new JSONObject();
+        load();
     }
 
     /**
-     * 读取 JSON 文件
+     * 加载JSON
      */
-    public void load() {
+    private void load() {
         File file = new File(getFullPath());
-
         try {
-            // 不存在则创建
             if (!file.exists()) {
-                createFile(file.toPath());
-                jsonInfo = new JSONObject();
-                save(); // 写入空 JSON
+                save();
                 return;
             }
-
-            String content = Files.readString(file.toPath(), StandardCharsets.UTF_8);
-
-            // 空文件保护
-            if (content == null || content.trim().isEmpty()) {
-                jsonInfo = new JSONObject();
+            String content = Files.readString(file.toPath(),
+                    StandardCharsets.UTF_8);
+            if (content.trim().isEmpty()) {
                 return;
             }
-
             jsonInfo = JSON.parseObject(content);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            jsonInfo = new JSONObject();
+        } catch (IOException e) {
+            e.fillInStackTrace();
         }
     }
 
     /**
-     * 保存 JSON 到文件
+     * 创建目录和文件
+     *
+     * @param file 文件
+     * @throws IOException 抛出异常
+     */
+    private void createFile(File file) throws IOException {
+        File parent = file.getParentFile();
+        if (!parent.exists()) {
+            parent.mkdirs();
+        }
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+    }
+
+    /**
+     * 保存JSON
      */
     public void save() {
         File file = new File(getFullPath());
-
         try {
-            createFile(file.toPath());
+            createFile(file);
             Files.writeString(
                     file.toPath(),
                     jsonInfo.toJSONString(),
                     StandardCharsets.UTF_8
             );
         } catch (IOException e) {
-            e.printStackTrace();
+            e.fillInStackTrace();
         }
     }
 }
